@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft. All rights reserved.
 
 from .vocab import Vocabulary
-from .metrics import compute_acc, compute_f1, compute_mcc, compute_pearson, compute_spearman
+from .metrics import compute_acc, compute_f1, compute_mcc, compute_pearson, compute_spearman, compute_auc, compute_ener
 # scitail
 ScitailLabelMapper = Vocabulary(True)
 ScitailLabelMapper.add('neutral')
@@ -18,6 +18,22 @@ QNLILabelMapper = Vocabulary(True)
 QNLILabelMapper.add('not_entailment')
 QNLILabelMapper.add('entailment')
 
+# English NER Dictionary
+NER_LabelMapper = Vocabulary(True)
+NER_LabelMapper.add('O')
+NER_LabelMapper.add('B-MISC')
+NER_LabelMapper.add('I-MISC')
+NER_LabelMapper.add('B-PER')
+NER_LabelMapper.add('I-PER')
+NER_LabelMapper.add('B-ORG')
+NER_LabelMapper.add('I-ORG')
+NER_LabelMapper.add('B-LOC')
+NER_LabelMapper.add('I-LOC')
+NER_LabelMapper.add('X')
+NER_LabelMapper.add('[CLS]')
+NER_LabelMapper.add('[SEP]')
+
+
 GLOBAL_MAP = {
  'scitail': ScitailLabelMapper,
  'mnli': SNLI_LabelMapper,
@@ -26,6 +42,7 @@ GLOBAL_MAP = {
  'qnnli': QNLILabelMapper,
  'rte': QNLILabelMapper,
  'diag': SNLI_LabelMapper,
+ 'ener': NER_LabelMapper
 }
 
 # number of class
@@ -43,6 +60,7 @@ DATA_META = {
  'sst': 2,
  'stsb': 1,
  'cola': 2,
+ 'ener': len(NER_LabelMapper),
 }
 
 DATA_TYPE = {
@@ -59,6 +77,7 @@ DATA_TYPE = {
  'sst': 1,
  'stsb': 0,
  'cola': 1,
+ 'ener': 1,
 }
 
 DATA_SWAP = {
@@ -75,6 +94,7 @@ DATA_SWAP = {
  'sst': 0,
  'stsb': 0,
  'cola': 0,
+ 'ener': 0,
 }
 
 # classification/regression
@@ -92,6 +112,7 @@ TASK_TYPE = {
  'sst': 0,
  'stsb':1,
  'cola': 0,
+ 'ener': 2,
 }
 
 METRIC_META = {
@@ -108,6 +129,7 @@ METRIC_META = {
  'sst': [0],
  'stsb': [3, 4],
  'cola': [0, 2],
+ 'ener': [6],
 }
 
 METRIC_NAME = {
@@ -116,6 +138,8 @@ METRIC_NAME = {
  2: 'MCC',
  3: 'Pearson',
  4: 'Spearman',
+ 5: 'AUC',
+ 6: 'ENER'
 }
 
 METRIC_FUNC = {
@@ -124,6 +148,25 @@ METRIC_FUNC = {
  2: compute_mcc,
  3: compute_pearson,
  4: compute_spearman,
+ 5: compute_auc,
+ 6: compute_ener
+}
+
+PREDICT_META = {
+    'mnli': 0,
+    'snli': 0,
+    'scitail': 0,
+    'qqp': 0,
+    'qnli': 0,
+    'qnnli': 0,
+    'wnli': 0,
+    'rte': 0,
+    'mrpc': 0,
+    'diag': 0,
+    'sst': 0,
+    'stsb': 0,
+    'cola': 0,
+    'ener': 2,
 }
 
 SAN_META = {
@@ -140,6 +183,7 @@ SAN_META = {
     'sst': 0,
     'stsb': 0,
     'cola': 0,
+    'ener': 0,
 }
 
 def generate_decoder_opt(task, max_opt):

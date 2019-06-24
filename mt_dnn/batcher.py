@@ -23,7 +23,9 @@ class BatchGen:
                  task=None,
                  task_type=0,
                  data_type=0,
-                 soft_label=False):
+                 soft_label=False,
+                 reduce_on=False,
+                 ):
         self.batch_size = batch_size
         self.maxlen = maxlen
         self.is_train = is_train
@@ -37,6 +39,8 @@ class BatchGen:
         self.task_type=task_type
         # soft label used for knowledge distillation
         self.soft_label_on = soft_label
+        self.reduce_on = reduce_on
+
         if do_batch:
             if is_train:
                 indices = list(range(len(self.data)))
@@ -159,7 +163,13 @@ class BatchGen:
 
             if self.is_train:
                 labels = [sample['label'] for sample in batch]
-                if self.task_type > 0:
+                if self.task_type == 2:
+                    tlab = torch.LongTensor(batch_size, tok_len).fill_(-1)
+                    for i, label in enumerate(labels):
+                        ll = len(label)
+                        tlab[i, : ll] = torch.LongTensor(label)
+                    batch_data.append(tlab)
+                elif self.task_type == 1:
                     batch_data.append(torch.FloatTensor(labels))
                 else:
                     batch_data.append(torch.LongTensor(labels))
@@ -187,5 +197,6 @@ class BatchGen:
                 batch_info['label'] = labels
                 if self.pairwise:
                     batch_info['true_label'] = [sample['true_label'] for sample in batch]
+                    batch_info['reduce_on'] = self.reduce_on
             self.offset += 1
             yield batch_info, batch_data
